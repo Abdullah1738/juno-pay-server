@@ -19,7 +19,16 @@ function PhasePill({ phase }: { phase: JunoPayInvoicePhase }) {
 
 function CopyToast({ visible }: { visible: boolean }) {
   return (
-    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-100 flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-black/10 text-sm text-black shadow-xl transition-all duration-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
+    <div
+      className={`flex items-center gap-2 rounded-lg border border-black/10 bg-white px-4 py-2 text-sm text-black shadow-xl transition-all duration-300 ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      style={{
+        position: "fixed",
+        left: "50%",
+        bottom: "1.5rem",
+        zIndex: 100,
+        transform: `translateX(-50%) translateY(${visible ? "0" : "0.5rem"})`,
+      }}
+    >
       Address Copied
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-emerald-500"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
     </div>
@@ -40,8 +49,8 @@ function CopyableAddress({ address }: { address: string }) {
   return (
     <>
       <CopyToast visible={copied} />
-      <div className="flex items-center gap-1.5 mt-1">
-        <span className="font-mono text-xs th-muted">{address.slice(0, 10)}...{address.slice(-10)}</span>
+      <div className="mt-1 flex min-w-0 items-center gap-1.5">
+        <span className="min-w-0 truncate font-mono text-xs th-muted">{address.slice(0, 10)}...{address.slice(-10)}</span>
         <button type="button" onClick={() => void copy()} title="Copy address" className="shrink-0 th-faint hover:th-muted transition-colors">
           {copied ? (
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -56,12 +65,12 @@ function CopyableAddress({ address }: { address: string }) {
 
 function OrderSummary({ invoice }: { invoice: JunoPayInvoice }) {
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="grid min-w-0 grid-cols-1 gap-3">
       <div>
         <div className="text-xs th-dim">Amount</div>
         <div className="mt-1 text-sm font-medium th-text">{formatJUNO(invoice.amount_zat)} JUNO</div>
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="text-xs th-dim">Deposit address</div>
         <CopyableAddress address={invoice.address} />
       </div>
@@ -89,8 +98,34 @@ function QRModal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative rounded-2xl th-modal border th-border p-8 shadow-2xl flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 px-4 py-6 backdrop-blur-sm"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflowY: "auto",
+        padding: "1.5rem 1rem",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+      }}
+    >
+      <div
+        className="relative flex w-full max-w-[380px] flex-col items-center rounded-2xl border th-border th-modal p-5 shadow-2xl sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: "380px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "clamp(1.25rem, 4vw, 2rem)",
+        }}
+      >
         <button
           type="button"
           onClick={onClose}
@@ -100,12 +135,17 @@ function QRModal({
         </button>
 
         <div className="mb-1 text-xl font-semibold th-text">Scan to Pay</div>
-        <div className="mb-6 text-sm th-muted">Use your JUNO wallet to scan</div>
+        <div className="mb-5 text-center text-sm th-muted sm:mb-6">Use your JUNO wallet to scan</div>
 
-        <div className="rounded-xl overflow-hidden bg-white p-5">
+        <div
+          className="w-full max-w-[300px] overflow-hidden rounded-xl bg-white p-4 sm:p-5"
+          style={{ width: "100%", maxWidth: "300px", padding: "clamp(1rem, 3vw, 1.25rem)" }}
+        >
           <QRCodeSVG
             value={address}
             size={260}
+            className="h-auto w-full"
+            style={{ width: "100%", height: "auto", display: "block" }}
             level="H"
             imageSettings={logoSrc ? { src: logoSrc, width: 56, height: 56, excavate: true } : undefined}
           />
@@ -117,9 +157,9 @@ function QRModal({
           </div>
         )}
 
-        <div className="mt-4 w-full max-w-[330px] text-center">
+        <div className="mt-4 w-full max-w-[330px] min-w-0 text-center">
           <div className="text-[10px] font-semibold uppercase tracking-wider th-faint mb-1.5">Deposit Address</div>
-          <div className="flex items-center justify-center">
+          <div className="flex min-w-0 items-center justify-center">
             <CopyableAddress address={address} />
           </div>
         </div>
@@ -173,7 +213,7 @@ export function JunoPayCheckout({
     <>
       {qrOpen && <QRModal address={invoice.address} expSec={phase === "awaiting_payment" ? expSec : null} logoSrc={logoSrc} onClose={() => setQrOpen(false)} />}
 
-      <div className="rounded-2xl border th-border th-surface p-5">
+      <div className="min-w-0 rounded-2xl border th-border th-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold th-text">Checkout</div>
           {!hidePhasePill && <PhasePill phase={phase} />}
