@@ -7,9 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /src
 COPY rust/keys/Cargo.toml rust/keys/Cargo.toml
+COPY rust/keys/Cargo.lock rust/keys/Cargo.lock
 COPY rust/keys/src rust/keys/src
 COPY rust/keys/include rust/keys/include
-RUN cargo build --release --manifest-path rust/keys/Cargo.toml
+RUN cargo build --release --locked --manifest-path rust/keys/Cargo.toml
 
 FROM --platform=linux/amd64 node:20-bookworm AS admin-build
 
